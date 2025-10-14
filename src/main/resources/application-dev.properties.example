@@ -1,0 +1,4 @@
+# Configuration for the Development Environment (copy this file to application-dev.properties and fill in the values)
+spring.datasource.url=jdbc:postgresql://localhost:5432/uptimemonitor
+spring.datasource.username=myuser
+spring.datasource.password=mypassword_CHANGE_ME

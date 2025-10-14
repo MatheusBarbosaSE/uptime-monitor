@@ -31,3 +31,9 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Ignore Spring profile properties with secrets
+application-dev.properties
+
+# Ignore environment file for docker-compose
+.env
