@@ -29,4 +29,9 @@ public class TargetController {
     public List<Target> findAllTargets() {
         return targetService.findAllTargets();
     }
+
+    @GetMapping("/{id}")
+    public Target findTargetById(@PathVariable("id") Long id) {
+        return targetService.findTargetById(id);
+    }
 }
