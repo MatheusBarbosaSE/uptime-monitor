@@ -5,6 +5,7 @@ import com.matheusbarbosase.uptime_monitor.model.Target;
 import com.matheusbarbosase.uptime_monitor.repository.TargetRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 
 @Service
 public class TargetService {
@@ -21,5 +22,9 @@ public class TargetService {
         newTarget.setUrl(request.url());
 
         return targetRepository.save(newTarget);
+    }
+
+    public List<Target> findAllTargets() {
+        return targetRepository.findAll();
     }
 }

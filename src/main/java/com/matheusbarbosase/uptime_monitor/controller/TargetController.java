@@ -6,6 +6,8 @@ import com.matheusbarbosase.uptime_monitor.service.TargetService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 
 @RestController
 @RequestMapping("/api/targets")
@@ -21,5 +23,10 @@ public class TargetController {
     @ResponseStatus(HttpStatus.CREATED)
     public Target createTarget(@RequestBody CreateTargetRequest request) {
         return targetService.createTarget(request);
+    }
+
+    @GetMapping
+    public List<Target> findAllTargets() {
+        return targetService.findAllTargets();
     }
 }
