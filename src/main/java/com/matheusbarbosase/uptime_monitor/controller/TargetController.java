@@ -1,6 +1,7 @@
 package com.matheusbarbosase.uptime_monitor.controller;
 
 import com.matheusbarbosase.uptime_monitor.dto.CreateTargetRequest;
+import com.matheusbarbosase.uptime_monitor.dto.UpdateTargetRequest;
 import com.matheusbarbosase.uptime_monitor.model.Target;
 import com.matheusbarbosase.uptime_monitor.service.TargetService;
 import org.springframework.http.HttpStatus;
@@ -33,5 +34,10 @@ public class TargetController {
     @GetMapping("/{id}")
     public Target findTargetById(@PathVariable("id") Long id) {
         return targetService.findTargetById(id);
+    }
+
+    @PutMapping("/{id}")
+    public Target updateTarget(@PathVariable("id") long id, @RequestBody UpdateTargetRequest request) {
+        return targetService.updateTarget(id, request);
     }
 }

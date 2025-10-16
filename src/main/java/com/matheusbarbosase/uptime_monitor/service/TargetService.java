@@ -1,6 +1,7 @@
 package com.matheusbarbosase.uptime_monitor.service;
 
 import com.matheusbarbosase.uptime_monitor.dto.CreateTargetRequest;
+import com.matheusbarbosase.uptime_monitor.dto.UpdateTargetRequest;
 import com.matheusbarbosase.uptime_monitor.exception.ResourceNotFoundException;
 import com.matheusbarbosase.uptime_monitor.model.Target;
 import com.matheusbarbosase.uptime_monitor.repository.TargetRepository;
@@ -33,5 +34,12 @@ public class TargetService {
     public Target findTargetById(long id) {
         return targetRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Target nof found with id: " + id));
+    }
+
+    public Target updateTarget(long id, UpdateTargetRequest request) {
+        Target existingTarget = findTargetById(id);
+        existingTarget.setName(request.name());
+        existingTarget.setUrl(request.url());
+        return targetRepository.save(existingTarget);
     }
 }
