@@ -40,4 +40,10 @@ public class TargetController {
     public Target updateTarget(@PathVariable("id") long id, @RequestBody UpdateTargetRequest request) {
         return targetService.updateTarget(id, request);
     }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteTarget(@PathVariable("id") long id) {
+        targetService.deleteTarget((id));
+    }
 }

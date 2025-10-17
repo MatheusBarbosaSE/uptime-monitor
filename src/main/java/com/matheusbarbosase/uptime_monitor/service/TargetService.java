@@ -42,4 +42,9 @@ public class TargetService {
         existingTarget.setUrl(request.url());
         return targetRepository.save(existingTarget);
     }
+
+    public void deleteTarget(long id) {
+        findTargetById(id);
+        targetRepository.deleteById(id);
+    }
 }
