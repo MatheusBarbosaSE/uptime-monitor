@@ -1,7 +1,10 @@
 package com.matheusbarbosase.uptime_monitor.service;
 
+import com.matheusbarbosase.uptime_monitor.model.HealthCheck;
 import com.matheusbarbosase.uptime_monitor.model.Target;
+import com.matheusbarbosase.uptime_monitor.repository.HealthCheckRepository;
 import com.matheusbarbosase.uptime_monitor.repository.TargetRepository;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -13,10 +16,14 @@ import java.util.List;
 public class MonitoringService {
 
     private final TargetRepository targetRepository;
+    private final HealthCheckRepository healthCheckRepository;
     private final RestTemplate restTemplate;
 
-    public MonitoringService(TargetRepository targetRepository, RestTemplate restTemplate) {
+    public MonitoringService(TargetRepository targetRepository,
+                             HealthCheckRepository healthCheckRepository,
+                             RestTemplate restTemplate) {
         this.targetRepository = targetRepository;
+        this.healthCheckRepository = healthCheckRepository;
         this.restTemplate = restTemplate;
     }
 
@@ -34,13 +41,27 @@ public class MonitoringService {
     }
 
     private void checkTarget(Target target) {
-        try {
-            restTemplate.getForObject(target.getUrl(), String.class);
+        HealthCheck healthCheck = new HealthCheck();
+        healthCheck.setTarget(target);
 
-            System.out.println("SUCCESS: Site " + target.getName() + " (" + target.getUrl() + ") is ONLINE.");
+        try {
+            ResponseEntity<String> response = restTemplate.getForEntity(target.getUrl(), String.class);
+
+            healthCheck.setStatusCode(response.getStatusCode().value());
+
+            if (response.getStatusCode().is2xxSuccessful()) {
+                healthCheck.setStatusMessage("ONLINE");
+                System.out.println("SUCCESS: Site " + target.getName() + " is ONLINE (" + response.getStatusCode().value() + ")");
+            } else {
+                healthCheck.setStatusMessage("UNEXPECTED_STATUS");
+                System.out.println("WARNING: Site " + target.getName() + " returned " + response.getStatusCode().value());
+            }
 
         } catch (Exception e) {
-            System.out.println("FAILURE: Site " + target.getName() + " (" + target.getUrl() + ") is OFFLINE or returning error: " + e.getMessage());
+            healthCheck.setStatusMessage("OFFLINE");
+            System.out.println("FAILURE: Site " + target.getName() + " is OFFLINE: " + e.getMessage());
         }
+
+        healthCheckRepository.save(healthCheck);
     }
 }
