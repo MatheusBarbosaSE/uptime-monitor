@@ -4,6 +4,7 @@ import com.matheusbarbosase.uptime_monitor.dto.CreateTargetRequest;
 import com.matheusbarbosase.uptime_monitor.dto.UpdateTargetRequest;
 import com.matheusbarbosase.uptime_monitor.model.Target;
 import com.matheusbarbosase.uptime_monitor.service.TargetService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,7 +23,7 @@ public class TargetController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Target createTarget(@RequestBody CreateTargetRequest request) {
+    public Target createTarget(@Valid @RequestBody CreateTargetRequest request) {
         return targetService.createTarget(request);
     }
 
@@ -37,7 +38,7 @@ public class TargetController {
     }
 
     @PutMapping("/{id}")
-    public Target updateTarget(@PathVariable("id") long id, @RequestBody UpdateTargetRequest request) {
+    public Target updateTarget(@PathVariable("id") long id, @Valid @RequestBody UpdateTargetRequest request) {
         return targetService.updateTarget(id, request);
     }
 
