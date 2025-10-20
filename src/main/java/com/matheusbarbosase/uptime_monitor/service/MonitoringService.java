@@ -4,6 +4,8 @@ import com.matheusbarbosase.uptime_monitor.model.HealthCheck;
 import com.matheusbarbosase.uptime_monitor.model.Target;
 import com.matheusbarbosase.uptime_monitor.repository.HealthCheckRepository;
 import com.matheusbarbosase.uptime_monitor.repository.TargetRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,7 @@ import java.util.List;
 @Service
 public class MonitoringService {
 
+    private static final Logger log = LoggerFactory.getLogger(MonitoringService.class);
     private final TargetRepository targetRepository;
     private final HealthCheckRepository healthCheckRepository;
     private final RestTemplate restTemplate;
@@ -29,7 +32,7 @@ public class MonitoringService {
 
     @Scheduled(fixedRate = 10000)
     public void checkAllTargets() {
-        System.out.println("--- RUNNING SCHEDULED CHECK ---");
+        log.info("--- RUNNING SCHEDULED CHECK ---");
 
         List<Target> targets = targetRepository.findAll();
 
@@ -37,7 +40,7 @@ public class MonitoringService {
             checkTarget(target);
         }
 
-        System.out.println("--- CHECK FINISHED ---");
+        log.info("--- CHECK FINISHED ---");
     }
 
     private void checkTarget(Target target) {
@@ -51,15 +54,15 @@ public class MonitoringService {
 
             if (response.getStatusCode().is2xxSuccessful()) {
                 healthCheck.setStatusMessage("ONLINE");
-                System.out.println("SUCCESS: Site " + target.getName() + " is ONLINE (" + response.getStatusCode().value() + ")");
+                log.info("SUCCESS: Site {} is ONLINE ({})", target.getName(), response.getStatusCode().value());
             } else {
                 healthCheck.setStatusMessage("UNEXPECTED_STATUS");
-                System.out.println("WARNING: Site " + target.getName() + " returned " + response.getStatusCode().value());
+                log.warn("WARNING: Site {} returned {}", target.getName(), response.getStatusCode().value());
             }
 
         } catch (Exception e) {
             healthCheck.setStatusMessage("OFFLINE");
-            System.out.println("FAILURE: Site " + target.getName() + " is OFFLINE: " + e.getMessage());
+            log.error("FAILURE: Site {} is OFFLINE: {}", target.getName(), e.getMessage());
         }
 
         healthCheckRepository.save(healthCheck);
