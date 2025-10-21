@@ -30,7 +30,7 @@ public class MonitoringService {
         this.restTemplate = restTemplate;
     }
 
-    @Scheduled(fixedRate = 10000)
+    @Scheduled(fixedRate = 60000)
     public void checkAllTargets() {
         log.info("--- RUNNING SCHEDULED CHECK ---");
 
