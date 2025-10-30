@@ -39,6 +39,7 @@ public class TargetService {
         newTarget.setName(request.name());
         newTarget.setUrl(request.url());
         newTarget.setUser(currentUser);
+        newTarget.setLastStatus("PENDING");
 
         Target savedTarget = targetRepository.save(newTarget);
         return convertToResponse(savedTarget);
