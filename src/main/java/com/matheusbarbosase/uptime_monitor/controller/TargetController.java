@@ -7,17 +7,32 @@ import com.matheusbarbosase.uptime_monitor.service.TargetService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import com.matheusbarbosase.uptime_monitor.service.EmailService;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
+
 
 @RestController
 @RequestMapping("/api/targets")
 public class TargetController {
 
     private final TargetService targetService;
+    private final EmailService emailService;
 
-    public TargetController(TargetService targetService) {
+    public TargetController(TargetService targetService, EmailService emailService) {
         this.targetService = targetService;
+        this.emailService = emailService;
+    }
+
+    @GetMapping("/test-email")
+    public ResponseEntity<String> testEmail() {
+        emailService.sendSimpleMessage(
+                "test@example.com",
+                "Test Alert - Uptime Monitor",
+                "This is a test. If you are reading this, email sending works!"
+        );
+        return ResponseEntity.ok("Email send attempt registered. Check your Mailtrap inbox!");
     }
 
     @PostMapping
