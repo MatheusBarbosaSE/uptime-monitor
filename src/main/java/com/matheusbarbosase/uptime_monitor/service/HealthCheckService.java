@@ -7,6 +7,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+
 
 @Service
 public class HealthCheckService {
@@ -17,8 +19,15 @@ public class HealthCheckService {
         this.healthCheckRepository = healthCheckRepository;
     }
 
-    public Page<HealthCheckResponse> findChecksByTargetId(Long targetId, Pageable pageable) {
-        Page<HealthCheck> checksPage = healthCheckRepository.findByTargetId(targetId, pageable);
+    public Page<HealthCheckResponse> findChecksByTargetId(Long targetId,
+                                                          Instant startDate,
+                                                          Instant endDate,
+                                                          Pageable pageable) {
+
+        Page<HealthCheck> checksPage = healthCheckRepository.findByTargetIdAndCheckedAtBetween(
+                targetId, startDate, endDate, pageable
+        );
+
         return checksPage.map(this::convertToResponse);
     }
 
