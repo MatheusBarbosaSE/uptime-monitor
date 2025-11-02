@@ -28,7 +28,8 @@ public class TargetService {
                 target.getId(),
                 target.getName(),
                 target.getUrl(),
-                target.getCreatedAt()
+                target.getCreatedAt(),
+                target.getCheckInterval()
         );
     }
 
@@ -40,6 +41,7 @@ public class TargetService {
         newTarget.setUrl(request.url());
         newTarget.setUser(currentUser);
         newTarget.setLastStatus("PENDING");
+        newTarget.setCheckInterval(request.checkInterval());
 
         Target savedTarget = targetRepository.save(newTarget);
         return convertToResponse(savedTarget);
@@ -70,6 +72,7 @@ public class TargetService {
 
         existingTarget.setName(request.name());
         existingTarget.setUrl(request.url());
+        existingTarget.setCheckInterval(request.checkInterval());
 
         Target updatedTarget = targetRepository.save(existingTarget);
         return convertToResponse(updatedTarget);

@@ -29,6 +29,9 @@ public class Target {
     @Column(name = "last_status")
     private String lastStatus;
 
+    @Column(name = "check_interval", nullable = false)
+    private Integer checkInterval;
+
     public Long getId() {
         return id;
     }
@@ -75,5 +78,13 @@ public class Target {
 
     public void setLastStatus(String lastStatus) {
         this.lastStatus = lastStatus;
+    }
+
+    public Integer getCheckInterval() {
+        return checkInterval;
+    }
+
+    public void setCheckInterval(Integer checkInterval) {
+        this.checkInterval = checkInterval;
     }
 }

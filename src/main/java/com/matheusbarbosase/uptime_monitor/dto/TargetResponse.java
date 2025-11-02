@@ -7,6 +7,7 @@ public record TargetResponse(
         Long id,
         String name,
         String url,
-        Instant createdAt
+        Instant createdAt,
+        Integer checkInterval
 ) {
 }
