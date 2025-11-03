@@ -6,6 +6,7 @@ import com.matheusbarbosase.uptime_monitor.dto.UpdateTargetRequest;
 import com.matheusbarbosase.uptime_monitor.exception.ResourceNotFoundException;
 import com.matheusbarbosase.uptime_monitor.model.Target;
 import com.matheusbarbosase.uptime_monitor.model.User;
+import com.matheusbarbosase.uptime_monitor.repository.HealthCheckRepository;
 import com.matheusbarbosase.uptime_monitor.repository.TargetRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -20,10 +21,12 @@ public class TargetService {
 
     private final TargetRepository targetRepository;
     private final DynamicTaskScheduler taskScheduler;
+    private final HealthCheckRepository healthCheckRepository;
 
-    public TargetService(TargetRepository targetRepository, DynamicTaskScheduler taskScheduler) {
+    public TargetService(TargetRepository targetRepository, DynamicTaskScheduler taskScheduler, HealthCheckRepository healthCheckRepository) {
         this.targetRepository = targetRepository;
         this.taskScheduler = taskScheduler;
+        this.healthCheckRepository = healthCheckRepository;
     }
 
     private TargetResponse convertToResponse(Target target) {
@@ -91,6 +94,8 @@ public class TargetService {
                 .orElseThrow(() -> new ResourceNotFoundException("Target not found with id: " + id));
 
         taskScheduler.cancelTask(id);
+
+        healthCheckRepository.deleteAllByTargetId(id);
 
         targetRepository.delete(targetToDelete);
     }

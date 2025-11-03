@@ -18,4 +18,5 @@ public interface HealthCheckRepository extends JpaRepository<HealthCheck, Long> 
             Instant endDate,
             Pageable pageable
     );
+    void deleteAllByTargetId(Long targetId);
 }
