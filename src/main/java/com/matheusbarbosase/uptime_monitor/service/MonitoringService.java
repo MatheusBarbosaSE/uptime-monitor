@@ -8,12 +8,9 @@ import com.matheusbarbosase.uptime_monitor.repository.TargetRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
-
-import java.util.List;
 
 
 @Service
@@ -36,21 +33,10 @@ public class MonitoringService {
         this.restTemplate = restTemplate;
     }
 
-    @Scheduled(fixedRate = 60000)
     @Transactional
-    public void checkAllTargets() {
-        log.info("--- RUNNING SCHEDULED CHECK ---");
+    public void checkTargetNow(Target target) {
+        log.info("Checking target: {}", target.getName());
 
-        List<Target> targets = targetRepository.findAll();
-
-        for (Target target : targets) {
-            checkTarget(target);
-        }
-
-        log.info("--- CHECK FINISHED ---");
-    }
-
-    private void checkTarget(Target target) {
         HealthCheck healthCheck = new HealthCheck();
         healthCheck.setTarget(target);
 
