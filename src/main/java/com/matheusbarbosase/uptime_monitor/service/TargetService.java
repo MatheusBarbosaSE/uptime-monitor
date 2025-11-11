@@ -8,7 +8,9 @@ import com.matheusbarbosase.uptime_monitor.model.Target;
 import com.matheusbarbosase.uptime_monitor.model.User;
 import com.matheusbarbosase.uptime_monitor.repository.HealthCheckRepository;
 import com.matheusbarbosase.uptime_monitor.repository.TargetRepository;
+import com.matheusbarbosase.uptime_monitor.repository.UserRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,11 +24,16 @@ public class TargetService {
     private final TargetRepository targetRepository;
     private final DynamicTaskScheduler taskScheduler;
     private final HealthCheckRepository healthCheckRepository;
+    private final UserRepository userRepository;
 
-    public TargetService(TargetRepository targetRepository, DynamicTaskScheduler taskScheduler, HealthCheckRepository healthCheckRepository) {
+    public TargetService(TargetRepository targetRepository,
+                         DynamicTaskScheduler taskScheduler,
+                         HealthCheckRepository healthCheckRepository,
+                         UserRepository userRepository) {
         this.targetRepository = targetRepository;
         this.taskScheduler = taskScheduler;
         this.healthCheckRepository = healthCheckRepository;
+        this.userRepository = userRepository;
     }
 
     private TargetResponse convertToResponse(Target target) {
@@ -101,11 +108,9 @@ public class TargetService {
     }
 
     private User getAuthenticatedUser() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (principal instanceof User) {
-            return (User) principal;
-        } else {
-            throw new IllegalStateException("Authenticated principal is not an instance of User");
-        }
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
     }
 }
