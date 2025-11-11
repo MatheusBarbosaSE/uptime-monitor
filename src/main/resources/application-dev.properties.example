@@ -1,4 +1,22 @@
-# Configuration for the Development Environment (copy this file to application-dev.properties and fill in the values)
+# Copy this file to 'application-dev.properties' (which is gitignored)
+# and fill in your development secrets.
+
+# 1. PostgreSQL Database Connection
+# (These MUST match the values in your .env file)
 spring.datasource.url=jdbc:postgresql://localhost:5432/uptimemonitor
 spring.datasource.username=myuser
 spring.datasource.password=mypassword_CHANGE_ME
+
+# 2. JWT Secret Key
+# (Use a secure 512-bit Base64-encoded string)
+# (Generate one here: https://www.allkeysgenerator.com/Random/Security-Key-Generator.aspx)
+application.security.jwt.secret-key=YOUR_SECURE_512_BIT_BASE64_KEY_HERE
+
+# 3. Mailtrap SMTP Server (for development email testing)
+# (Get these credentials from your Mailtrap Sandbox Inbox)
+spring.mail.host=sandbox.smtp.mailtrap.io
+spring.mail.port=2525
+spring.mail.username=YOUR_MAILTRAP_USERNAME_HERE
+spring.mail.password=YOUR_MAILTRAP_PASSWORD_HERE
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true
