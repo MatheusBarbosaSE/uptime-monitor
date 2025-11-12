@@ -1,27 +1,39 @@
 package com.matheusbarbosase.uptime_monitor.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.matheusbarbosase.uptime_monitor.config.AbstractIntegrationTest;
+import com.matheusbarbosase.uptime_monitor.dto.CreateTargetRequest;
 import com.matheusbarbosase.uptime_monitor.model.Target;
 import com.matheusbarbosase.uptime_monitor.model.User;
 import com.matheusbarbosase.uptime_monitor.repository.HealthCheckRepository;
 import com.matheusbarbosase.uptime_monitor.repository.TargetRepository;
 import com.matheusbarbosase.uptime_monitor.repository.UserRepository;
-
+import com.matheusbarbosase.uptime_monitor.service.DynamicTaskScheduler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.Collections;
+import java.util.List;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
 
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 class TargetControllerTest extends AbstractIntegrationTest {
 
@@ -34,9 +46,15 @@ class TargetControllerTest extends AbstractIntegrationTest {
     private UserRepository userRepository;
     @Autowired
     private HealthCheckRepository healthCheckRepository;
-
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @MockBean
+    private DynamicTaskScheduler taskScheduler;
+
 
     @BeforeEach
     void setUp() {
@@ -83,11 +101,40 @@ class TargetControllerTest extends AbstractIntegrationTest {
         targetUser2.setLastStatus("PENDING");
         targetRepository.save(targetUser2);
 
-        mockMvc.perform(
-                        get("/api/targets")
-                )
+        mockMvc.perform(get("/api/targets"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].name", is("Target de User 1")));
+    }
+
+    @Test
+    @WithMockUser(username = "user-test")
+    void whenCreateTarget_thenTargetIsCreatedAndOwnedByUser() throws Exception {
+
+        User user = new User();
+        user.setUsername("user-test");
+        user.setEmail("user@test.com");
+        user.setPassword(passwordEncoder.encode("pass123"));
+        User savedUser = userRepository.save(user);
+
+        CreateTargetRequest requestDto = new CreateTargetRequest(
+                "Novo Target",
+                "http://novo.com",
+                10
+        );
+
+        mockMvc.perform(
+                        post("/api/targets")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(requestDto))
+                )
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.name", is("Novo Target")))
+                .andExpect(jsonPath("$.checkInterval", is(10)));
+
+        List<Target> targetsInDb = targetRepository.findAll();
+        assertThat(targetsInDb).hasSize(1);
+        assertThat(targetsInDb.get(0).getName()).isEqualTo("Novo Target");
+        assertThat(targetsInDb.get(0).getUser().getId()).isEqualTo(savedUser.getId());
     }
 }
